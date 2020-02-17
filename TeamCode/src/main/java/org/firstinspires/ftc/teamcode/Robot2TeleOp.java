@@ -101,8 +101,9 @@
         private Servo rotation = null;
         private Servo foundationLeft = null;
         private Servo foundationRight = null;
-        private Servo release = null;
-        //  private Servo capstone = null;
+        private CRServo release = null;
+        private Servo capstone = null;
+        private Servo sideArm = null;
         private CRServo extenderTop = null;
         private CRServo extenderBottom = null;
 
@@ -199,12 +200,12 @@
             }
         }
 
-        private void moveClamps(boolean dPadUp, boolean dPadDown)
+        private void MoveClamps(boolean dPadUp, boolean dPadDown)
         {
             if (dPadUp) {
 
                 //clamp.setDirection(DcMotorSimple.Direction.FORWARD);
-                clamp.setPosition(0.53);
+                clamp.setPosition(0.43); //0.50
                 telemetry.addData("Status: ","Up Activated" );
 
             }
@@ -212,7 +213,7 @@
             {
 
                 //     clamp.setDirection(DcMotorSimple.Direction.REVERSE);
-                clamp.setPosition(0.63);
+                clamp.setPosition(0.61); //0.61
                 telemetry.addData("Status: ","Down Activated" );
 
             }
@@ -228,14 +229,14 @@
 
             if (up) {
 
-                foundationLeft.setPosition(0.0);
-                foundationRight.setPosition(0.0);
+                foundationLeft.setPosition(0.27); //perpendicular to ground
+                foundationRight.setPosition(0.37);
 
             }
             else if (down) {
 
-                foundationLeft.setPosition(1.0);
-                foundationRight.setPosition(1.0);
+                foundationLeft.setPosition(0.67); // Parallel to ground
+                foundationRight.setPosition(0.77);
 
             }
 
@@ -244,13 +245,13 @@
 
             if (released) {
 
-                release.setPosition(-1.0);
+                release.setPower(-1.0);
 
             }
             else
             {
 
-                release.setPosition(1.0);
+                release.setPower(0.0);
 
             }
 
@@ -259,12 +260,12 @@
 
             if (rotateLeft) {
 
-                rotation.setPosition(0.875);
+                rotation.setPosition(0.95);
 
             }
             else if (rotateRight) {
 
-                rotation.setPosition(-0.7);
+                rotation.setPosition(0.2);
 
 
             }
@@ -290,6 +291,36 @@
                 extenderBottom.setPower(0.0);
 
             }
+        }
+        private void MoveSideArm(boolean up, boolean down) {
+
+            if (up) {
+
+                sideArm.setPosition(0.0);
+
+            }
+            else if (down) {
+
+                sideArm.setPosition(0.5);
+
+
+            }
+
+        }
+        private void ReleaseCapstone(boolean up, boolean down) {
+
+            if (up) {
+
+                capstone.setPosition(0.0);
+
+            }
+            else if (down) {
+
+                capstone.setPosition(1.0);
+
+
+            }
+
         }
         @Override
         public void runOpMode() throws InterruptedException{
@@ -325,9 +356,11 @@
             foundationLeft = hardwareMap.servo.get("foundationLeft");
             foundationRight = hardwareMap.servo.get("foundationRight");
             rotation = hardwareMap.servo.get("rotation");
-            release = hardwareMap.servo.get("release");
+            release = hardwareMap.crservo.get("release");
             extenderTop = hardwareMap.crservo.get("extenderTop");
             extenderBottom = hardwareMap.crservo.get("extenderBottom");
+            sideArm = hardwareMap.servo.get("sideArm");
+            capstone = hardwareMap.servo.get("capstone");
 
 
 
@@ -382,7 +415,9 @@
                 boolean reverseDirection = gamepad1.a;
                 boolean hookUp = gamepad1.dpad_up;
                 boolean hookDown = gamepad1.dpad_down;
-                boolean released = gamepad1.x;
+                boolean released = gamepad1.y;
+                boolean armUp = gamepad1.x;
+                boolean armDown = gamepad1.b;
 
 
 
@@ -401,7 +436,8 @@
                 boolean tapeOut = gamepad2.y;
                 boolean tapeIn = gamepad2.a;
                 boolean tapeStop = gamepad2.dpad_right;
-
+                boolean capstoneUp = gamepad2.left_stick_button;
+                boolean capstoneDown = gamepad2.right_stick_button;
 
 
 
@@ -428,11 +464,13 @@
                 mecanumMove(leftStickX, leftStickY, rightStickX);
                 Collector(collectorIn, collectorOut, guidanceIn, guidanceOut);
                 SkystonePositioner(StoneUpDown);
-                moveClamps(clampsIn, clampsOut);
+                MoveClamps(clampsIn, clampsOut);
                 RotateBlock(rotateLeft, rotateRight);
                 MoveHooks(hookUp, hookDown);
                 ReleaseCollector(released);
                 ExtendTape(tapeOut, tapeIn, tapeStop);
+                MoveSideArm(armUp, armDown);
+                ReleaseCapstone(capstoneUp, capstoneDown);
 
 
 
