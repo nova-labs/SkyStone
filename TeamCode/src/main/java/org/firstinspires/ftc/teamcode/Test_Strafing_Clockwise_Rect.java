@@ -33,8 +33,8 @@ public class Test_Strafing_Clockwise_Rect extends HardwareTestAuto
 
     // public static final double TURNING_POWER = 0.3;  // for gyro-based turn
 
-    public static final double DRIVING_BASE_POWER = 0.1;     // keep at MIN, will add extra power
-    public static final double STRAFING_BASE_POWER = 0.1;    // keep at MIN, will add extra power
+    public static final double DRIVING_BASE_POWER = 0.25;     // MIN speed, will add extra power
+    public static final double STRAFING_BASE_POWER = 0.25;    // MIN speed, will add extra power
 
 
     public enum Sides  // for sideways movement 
@@ -61,10 +61,10 @@ public class Test_Strafing_Clockwise_Rect extends HardwareTestAuto
         */
 
         // get a random power to test robot navigation behavior in different speed  
-        speedBoost = Math.random() * 0.5;   // to get max 0.5
+        speedBoost = Math.random() * 0.25;   // to get max 0.25
         
-        if (speedBoost > 0.5)  // set max limit, extra check
-            speedBoost = 0.5;
+        if (speedBoost > 0.25)  // set max limit, extra check
+            speedBoost = 0.25;
 
         telemetry.addData("Motor Speed: ", (STRAFING_BASE_POWER + speedBoost));
 
