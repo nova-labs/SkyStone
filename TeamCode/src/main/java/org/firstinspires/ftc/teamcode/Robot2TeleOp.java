@@ -205,7 +205,7 @@
             if (dPadUp) {
 
                 //clamp.setDirection(DcMotorSimple.Direction.FORWARD);
-                clamp.setPosition(0.43); //0.50
+                clamp.setPosition(0.43); //Min value is 0.37
                 telemetry.addData("Status: ","Up Activated" );
 
             }
@@ -213,7 +213,7 @@
             {
 
                 //     clamp.setDirection(DcMotorSimple.Direction.REVERSE);
-                clamp.setPosition(0.61); //0.61
+                clamp.setPosition(0.61); //max value is 0.63
                 telemetry.addData("Status: ","Down Activated" );
 
             }

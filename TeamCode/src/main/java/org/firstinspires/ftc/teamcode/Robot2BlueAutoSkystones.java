@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import java.util.Arrays;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -126,6 +127,10 @@ public class Robot2BlueAutoSkystones extends LinearOpMode {
     final int encoderBack = -1;
     final int encoderForward = 1;
 
+    int initEncoderValFrontLeft;
+    int initEncoderValFrontRight;
+    int initEncoderValBackRight;
+    int initEncoderValBackLeft;
 
 
 
@@ -174,8 +179,8 @@ public class Robot2BlueAutoSkystones extends LinearOpMode {
 
 
         //init sensors
-        blueColorSensor = hardwareMap.colorSensor.get("blueColorSensor");
-        redColorSensor = hardwareMap.colorSensor.get("redColorSensor");
+        //    blueColorSensor = hardwareMap.colorSensor.get("blueColorSensor");
+        //    redColorSensor = hardwareMap.colorSensor.get("redColorSensor");
 
 
         if (frontLeft != null)
@@ -187,7 +192,11 @@ public class Robot2BlueAutoSkystones extends LinearOpMode {
         if (backRight != null)
             backRight.setDirection(DcMotor.Direction.REVERSE);
 
-        telemetry.addData("Back Left Encoder Value: ", backLeft.getCurrentPosition());
+        initEncoderValFrontLeft = frontLeft.getCurrentPosition();
+        initEncoderValFrontRight = frontRight.getCurrentPosition();
+        initEncoderValBackRight = backRight.getCurrentPosition();
+        initEncoderValBackLeft = backLeft.getCurrentPosition();
+        telemetry.addData("Init Encoder Values:" , String.format(" %d, %d, %d, %d", initEncoderValFrontLeft , initEncoderValFrontRight , initEncoderValBackRight , initEncoderValBackLeft));
         telemetry.update();
 
 
@@ -200,8 +209,8 @@ public class Robot2BlueAutoSkystones extends LinearOpMode {
         //ReleaseCollector(-1.0);
         //AutoMecanumMove(1500*EncoderBack, 0, 0.5, -0.1);
         //Strafe DiagonalLeftForward
-        AutoMecanumMove(1500 * encoderForward, 0.5 * right, 0.0 * forward, 0.025); //Strafe Left to Skystones
-        DetectColorRGB();
+        //   AutoMecanumMove(1500 * encoderForward, 0.5 * right, 0.0 * forward, 0.025); //Strafe Left to Skystones
+  /*      DetectColorRGB();
         if(skystonePosition == 1)
         {
 
@@ -244,15 +253,46 @@ public class Robot2BlueAutoSkystones extends LinearOpMode {
         }
         ExtendTape(0.7, 1000);
 
+*/     // AutoMecanumMove(1500 * encoderForward, 0.0 * right, 0.5 * forward, 0.0); //Strafe Left to Skystones
+        // AutoMecanumMove(10000 * encoderForward, 0.5 * right, 0.0 * forward, 0.0); //Strafe Left to Skystones
+        while(opModeIsActive())
+        {
+            frontLeft.setPower(1.0);
+            sleep(10000);
+            frontLeft.setPower(0.0);
 
-       /* ReleaseCollector(1.0);
+            frontRight.setPower(1.0);
+            sleep(10000);
+            frontRight.setPower(0.0);
+
+            backRight.setPower(1.0);
+            sleep(10000);
+            backRight.setPower(0.0);
+
+            backLeft.setPower(1.0);
+            sleep(10000);
+            backLeft.setPower(0.0);
+
+            int[] finalEncoderVal = {frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(), backRight.getCurrentPosition(), backLeft.getCurrentPosition()};
+            telemetry.addData("Final Encoder Values: ", Arrays.toString(finalEncoderVal));
+            telemetry.update();
+            sleep(5000);
+
+            int[] deltaEncoderVal = {finalEncoderVal[0] - initEncoderValFrontLeft,finalEncoderVal[1] - initEncoderValFrontRight,finalEncoderVal[2] - initEncoderValBackRight,finalEncoderVal[3] - initEncoderValBackLeft};
+            telemetry.addData("Change in Encoder Values: ", Arrays.toString(deltaEncoderVal));
+            telemetry.update();
+            sleep(5000);
+        }
+
+   /*     ReleaseCollector(1.0);
         CollectorGo(1.0,1.0);
         sleep(500);
         CollectorStop();
         MoveHooks(0.27, 0.37); //Perpendicular
         MoveHooks(0.27, 0.67); //Parallel
         MoveSideArm(0.0); //Up
-        MoveSideArm(0.5); //Down */
+        MoveSideArm(0.5); //Down
+        ExtendTape(0.7, 1000);*/
 
 
 
