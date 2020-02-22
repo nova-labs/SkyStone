@@ -112,6 +112,8 @@
         //other variables
         private static boolean tele = true; //show telemetry
         double lastPosition = 0; // used for Block rotation
+        int counter = 0;
+
 
 
 
@@ -205,7 +207,7 @@
             if (dPadUp) {
 
                 //clamp.setDirection(DcMotorSimple.Direction.FORWARD);
-                clamp.setPosition(0.43); //Min value is 0.37
+                clamp.setPosition(0.43); //0.50
                 telemetry.addData("Status: ","Up Activated" );
 
             }
@@ -213,7 +215,7 @@
             {
 
                 //     clamp.setDirection(DcMotorSimple.Direction.REVERSE);
-                clamp.setPosition(0.61); //max value is 0.63
+                clamp.setPosition(0.61); //0.61
                 telemetry.addData("Status: ","Down Activated" );
 
             }
@@ -412,14 +414,13 @@
                 double leftRight = gamepad1.left_stick_x;
                 double Rotate = gamepad1.right_stick_x;
                 boolean slowMode = (gamepad1.left_trigger > 0.2);
-                boolean reverseDirection = gamepad1.a;
+                boolean directionFront = gamepad1.right_trigger > 0.2;
+                boolean directionBack = gamepad1.a;
                 boolean hookUp = gamepad1.dpad_up;
                 boolean hookDown = gamepad1.dpad_down;
                 boolean released = gamepad1.y;
                 boolean armUp = gamepad1.x;
                 boolean armDown = gamepad1.b;
-
-
 
 
                 //gamepad2
@@ -429,18 +430,15 @@
                 boolean guidanceOut = gamepad2.left_bumper;
 
                 double StoneUpDown = gamepad2.right_stick_y;
-                boolean clampsIn = gamepad2.dpad_up;
-                boolean clampsOut = gamepad2.dpad_down;
+                boolean clampsIn = gamepad2.dpad_down;
+                boolean clampsOut = gamepad2.dpad_up;
                 boolean rotateLeft = gamepad2.x;
                 boolean rotateRight = gamepad2.b;
-                boolean tapeOut = gamepad2.y;
-                boolean tapeIn = gamepad2.a;
+                boolean tapeOut = gamepad2.a;
+                boolean tapeIn = gamepad2.y;
                 boolean tapeStop = gamepad2.dpad_right;
                 boolean capstoneUp = gamepad2.left_stick_button;
                 boolean capstoneDown = gamepad2.right_stick_button;
-
-
-
 
 
                 if (slowMode) {
@@ -448,11 +446,37 @@
                 } else {
                     speedFactor = 1.0;
                 }
-                if (reverseDirection) {
-                    direction = -1;
-                } else {
-                    direction = 1;
+             /*   if (reverseDirection)
+                {
+                    counter++;
+                    telemetry.addData("Counter: ", counter);
+                    telemetry.update();
+                    if(counter%2 != 0)
+                    {
+                        direction = -1;
+                        telemetry.addData("Direction: ", direction);
+                        telemetry.update();
+                    }
+                    else if(counter%2 == 0)
+                    {
+                        direction = 1;
+                        telemetry.addData("Direction: ", direction);
+                        telemetry.update();
+                    }
+
+
+            }*/
+                if (directionFront)
+                {
+                        direction = 1;
                 }
+                else if(directionBack)
+                {
+                    direction = -1;
+                }
+
+
+
 
                 double leftStickY = forwardBack * speedFactor * direction;
                 double leftStickX = leftRight * speedFactor * direction;

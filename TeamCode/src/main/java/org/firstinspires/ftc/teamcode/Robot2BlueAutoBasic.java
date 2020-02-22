@@ -66,9 +66,9 @@ import android.view.View;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="BasicRedAuto", group="Linear OpMode")
+@Autonomous(name="Robot2BlueAutoBasic", group="Linear OpMode")
 //@Disabled
-public class BasicRedAuto extends LinearOpMode {
+public class Robot2BlueAutoBasic extends LinearOpMode {
 
 
     private DcMotor getNewMotor(String motorName) { //these could be made generic using type notation
@@ -96,8 +96,12 @@ public class BasicRedAuto extends LinearOpMode {
     //Attachment Servos
     private Servo clamp = null;
     private Servo rotation = null;
-    private Servo foundation = null;
-    private Servo release = null;
+    private Servo foundationLeft = null;
+    private Servo foundationRight = null;
+    private CRServo release = null;
+    private CRServo extenderTop = null;
+    private CRServo extenderBottom = null;
+
 
     //Sensors
     private ColorSensor blueColorSensor = null;
@@ -152,9 +156,12 @@ public class BasicRedAuto extends LinearOpMode {
 
         //init servos
         clamp = hardwareMap.servo.get("clamp");
-        foundation = hardwareMap.servo.get("foundation");
         rotation = hardwareMap.servo.get("rotation");
-        release = hardwareMap.servo.get("release");
+        foundationLeft = hardwareMap.servo.get("foundationLeft");
+        foundationRight = hardwareMap.servo.get("foundationRight");
+        extenderTop = hardwareMap.crservo.get("extenderTop");
+        release = hardwareMap.crservo.get("release");
+        extenderBottom = hardwareMap.crservo.get("extenderBottom");
 
 
 
@@ -170,7 +177,7 @@ public class BasicRedAuto extends LinearOpMode {
         telemetry.addData("Back Left Encoder Value: ", backLeft.getCurrentPosition());
         telemetry.update();
 
-        foundation.setPosition(0.0);
+        MoveHooks(0.67,0.77); //Parallel
 
 
 
@@ -178,37 +185,25 @@ public class BasicRedAuto extends LinearOpMode {
         waitForStart();
 
 
-
         telemetry.addData("Back Left Encoder Value: ", backLeft.getCurrentPosition());
         telemetry.update();
         sleep(500);
 
-        //ReleaseCollector(-1.0);
-        //AutoMecanumMove(1500*EncoderBack, 0, 0.5, -0.1);
-        //Starfe DiagonalLeftForward
-        AutoMecanumMove(3850 * encoderBack, 0.70 * left, 0.5 * backward, -0.025); //Drive to foundation
-        AutoMecanumMove(50 * encoderBack, 0 * left, 0.25 * backward, 0.035); //Align
+        AutoMecanumMove(4100 * encoderBack, 0.65 * right, 0.5 * backward, -0.025); //Drive to foundation
+        AutoMecanumMove(100 * encoderBack, 0.1625 * right, 0.125 * backward, -0.00625); //Drive to foundation
         sleep(1000);
-        MoveHook(1.0); //Grab Foundation
+        MoveHooks(0.27,0.37); //Grab Foundation
         sleep(1000);
-        AutoMecanumMove(5300 * encoderForward, 0.2 * right, 0.5 * forward, 0.18); //Backleft clockwise arc rotation
-        MoveHook(0.0);
+        AutoMecanumMove(4500 * encoderForward, 0.5 * left, 0.7 * forward, -0.53); //Backleft clockwise arc rotation
         sleep(1000);
-        AutoMecanumMove(4000 * encoderBack, 0.3 * right, 0.5 * backward, 0); //Push into foundation
-        ReleaseCollector(-1.0);
-        sleep(1000);
-        AutoMecanumMove(3000 * encoderForward, 0.77 * left, 0.6 * forward, 0.06); //Strafe Into Wall
-        AutoMecanumMove(800 * encoderForward, 0.0 * left, 0.6 * forward, -0.05); //Park
-
-
-
-
-
-        // AutoMecanumMove(1500, -0.5, 0, 0);
-
-
-
-
+        AutoMecanumMove(1300 * encoderBack, 0.0 * right, 0.6 * backward, 0.0); //Push into foundation
+        AutoMecanumMove(1000 * encoderForward, 0.7 * right, 0.2 * backward, -0.05); //Move foundation into triangle
+        MoveHooks(0.67,0.77); //Release Foundation
+        ReleaseCollector(-1.0, 1000);
+        AutoMecanumMove(1000 * encoderForward, 1.0 * right, 0.0 * forward, 0.0); //Park
+        AutoMecanumMove (2500 * encoderForward, 0. * right, 0.5 * forward, -0.1); //Move to skybridge
+        //  AutoMecanumMove(1000 * encoderForward, 1.0 * right, 0.0 * forward, 0.0); //Park
+        ExtendTape(0.8, 2000); //Extra leeway/safeguard
 
 
     }
@@ -319,19 +314,33 @@ public class BasicRedAuto extends LinearOpMode {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void MoveHook(double position) //Drive Forward
-    {
+    private void MoveHooks(double leftPosition, double rightPosition) {
 
-        foundation.setPosition(position);
-        double foundationPosition = foundation.getPosition();
-        while(foundationPosition != position)
+        foundationLeft.setPosition(leftPosition);  //0.27 Perpendicular, 0.67 Parallel
+        foundationRight.setPosition(rightPosition); //0.37 Perpendicular, 0.77 Parallel
+
+        double foundationLeftPosition = foundationLeft.getPosition();
+        double foundationRightPosition = foundationRight.getPosition();
+
+        while(foundationLeftPosition != left && foundationRightPosition != rightPosition)
         {
 
-            foundationPosition = foundation.getPosition();
+            foundationLeftPosition = foundationLeft.getPosition();
+            foundationRightPosition = foundationRight.getPosition();
 
         }
         sleep(500);
 
+    }
+    private void ExtendTape(double power, long time) {
+
+        extenderTop.setPower(-power);
+        extenderBottom.setPower(power);
+
+        sleep(time);
+
+        extenderTop.setPower(0);
+        extenderBottom.setPower(0);
 
     }
 
@@ -440,11 +449,11 @@ public class BasicRedAuto extends LinearOpMode {
         }
 
     }
-    private void ReleaseCollector(double position) {
+    private void ReleaseCollector(double power, long time) {
 
-        release.setPosition(position);
-
-        sleep(1000);
+        release.setPower(power);
+        sleep(time);
+        release.setPower(0.0);
 
     }
     public void DetectColorRGB() {
